@@ -1,0 +1,58 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    image: getumbrel/app-proxy:1.0.0
+    environment:
+      APP_HOST: matrix-bridges-telegram_config-ui_1
+      APP_PORT: 3000
+      PROXY_AUTH_ADD: "false"
+
+  config-ui:
+    image: node:18-alpine
+    restart: unless-stopped
+    stop_grace_period: 1s
+    working_dir: /app
+    command: sh -c "npm install && node server.js"
+    environment:
+      - NODE_ENV=production
+      - BRIDGE_DATA_PATH=/data/bridge
+      - SYNAPSE_URL=${SYNAPSE_URL:-http://synapse_server_1:8008}
+      - SYNAPSE_DOMAIN=${SYNAPSE_DOMAIN:-umbrel.local}
+      - SYNAPSE_DATA_PATH=/synapse-data
+    volumes:
+      - ${APP_DATA_DIR}/data:/data
+      - ${APP_DATA_DIR}/config:/config
+      - ${APP_DATA_DIR}/config-ui:/app
+      - ${APP_SYNAPSE_DATA_DIR:-/dev/null}:/synapse-data
+    networks:
+      - default
+      - umbrel_main_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mautrix-telegram:
+    image: ghcr.io/posix4e/mautrix-telegram:v0.15.1
+    restart: unless-stopped
+    stop_grace_period: 30s
+    depends_on:
+      - config-ui
+    volumes:
+      - ${APP_DATA_DIR}/data/bridge:/data
+    networks:
+      - default
+      - umbrel_main_network
+    command: sh -c "while [ ! -f /data/config.yaml ]; do echo 'Waiting for configuration...'; sleep 5; done; python3 -m mautrix_telegram -c /data/config.yaml"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:29317/public/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  umbrel_main_network:
+    external: true

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Bridge - Quick Setup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0088cc 0%, #0055aa 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #0088cc;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .btn-primary {
+            background: #0088cc;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            background: #0077bb;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,136,204,0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .instructions {
+            background: #f8f9fa;
+            border-left: 4px solid #0088cc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+            color: #555;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .instructions code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Telegram Bridge Setup</h1>
+        <p class="subtitle">Get started in 30 seconds - no API keys needed!</p>
+
+        <div class="success-message" id="success"></div>
+        <div class="error-message" id="error"></div>
+
+        <form id="quick-setup-form">
+            <div class="form-group">
+                <label for="matrix_user">Your Matrix Username</label>
+                <input type="text" id="matrix_user" name="matrix_user" placeholder="yourname" required>
+                <p class="help-text">Just your username, not the full @username:domain</p>
+            </div>
+
+            <button type="submit" class="btn-primary">
+                Setup Bridge
+            </button>
+        </form>
+
+        <div class="instructions" id="instructions">
+            <h3>✅ Bridge Ready!</h3>
+            <p>Your bridge is configured. Now connect your Telegram:</p>
+            <ol>
+                <li>Open Element/Matrix client</li>
+                <li>Start a chat with <code id="bot-username">@telegrambot:umbrel.local</code></li>
+                <li>Send: <code>login</code></li>
+                <li>Follow the bot's instructions to connect your Telegram account</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('quick-setup-form');
+        const successDiv = document.getElementById('success');
+        const errorDiv = document.getElementById('error');
+        const instructionsDiv = document.getElementById('instructions');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Hide previous messages
+            successDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+            
+            const matrixUser = document.getElementById('matrix_user').value;
+            
+            try {
+                const response = await fetch('/api/setup/quick', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        matrix_user: matrixUser
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    successDiv.textContent = 'Success! Bridge configured.';
+                    successDiv.style.display = 'block';
+                    
+                    // Update bot username in instructions
+                    if (result.bot_username) {
+                        document.getElementById('bot-username').textContent = result.bot_username;
+                    }
+                    
+                    // Show instructions
+                    instructionsDiv.style.display = 'block';
+                    
+                    // Hide form
+                    form.style.display = 'none';
+                } else {
+                    errorDiv.textContent = 'Error: ' + (result.error || 'Failed to configure bridge');
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Network error: ' + error.message;
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

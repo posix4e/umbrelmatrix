@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Bridge - Easy Setup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0088cc 0%, #0055aa 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .wizard-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .wizard-header {
+            background: linear-gradient(135deg, #0088cc 0%, #0055aa 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .wizard-header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .wizard-content {
+            padding: 40px;
+        }
+
+        .setup-option {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .setup-option:hover {
+            border-color: #0088cc;
+            box-shadow: 0 4px 12px rgba(0,136,204,0.1);
+        }
+
+        .setup-option h3 {
+            color: #333;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setup-option p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .badge {
+            background: #4CAF50;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #0088cc;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            background: #0077bb;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,136,204,0.3);
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #0088cc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box strong {
+            color: #0088cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="wizard-container">
+        <div class="wizard-header">
+            <h1>🚀 Telegram Bridge Setup</h1>
+            <p>Choose the easiest method for you</p>
+        </div>
+
+        <div class="wizard-content">
+            <div class="info-box">
+                <strong>Good news!</strong> You don't need API keys to get started. Just use your phone number!
+            </div>
+
+            <div class="setup-option" onclick="window.location.href='/setup/phone'">
+                <h3>📱 Login with Phone Number <span class="badge">EASIEST</span></h3>
+                <p>Use your existing Telegram account. Just enter your phone number and we'll send you a code. No API keys needed!</p>
+            </div>
+
+            <div class="setup-option" onclick="window.location.href='/setup/bot'">
+                <h3>🤖 Create a Bot</h3>
+                <p>Set up a Telegram bot for relay mode. Good for public rooms where everyone shares one bot.</p>
+            </div>
+
+            <div class="setup-option" onclick="window.location.href='/index.html'">
+                <h3>⚙️ Advanced Setup</h3>
+                <p>Have API credentials already? Use the advanced setup with full configuration options.</p>
+            </div>
+
+            <button class="btn-primary" onclick="window.location.href='/setup/phone'">
+                Start with Phone Login (Recommended)
+            </button>
+        </div>
+    </div>
+</body>
+</html>

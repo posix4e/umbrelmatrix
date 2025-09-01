@@ -1,0 +1,42 @@
+manifestVersion: 1
+id: matrix-bridges-telegram
+name: Telegram Bridge
+tagline: Bridge your Matrix server with Telegram
+icon: https://raw.githubusercontent.com/mautrix/telegram/master/mautrix-telegram.svg
+category: Social
+version: "0.15.0"
+port: 8080
+description: >-
+  mautrix-telegram is a Matrix-Telegram puppeting bridge that allows you to use your Matrix account to communicate with Telegram users and groups.
+  
+  
+  Features:
+  - Seamless messaging between Matrix and Telegram
+  - Support for media, files, and stickers
+  - Group chat bridging
+  - End-to-bridge encryption support
+  - Double puppeting for a native feel
+  
+  
+  This app includes a web-based configuration UI to easily set up your Telegram API credentials and manage bridge settings without command-line access.
+
+developer: mautrix
+website: https://github.com/mautrix/telegram
+submitter: Matrix Bridges Community
+submission: https://github.com/mautrix/telegram
+repo: https://github.com/mautrix/telegram
+support: https://matrix.to/#/#telegram:maunium.net
+gallery:
+  - https://raw.githubusercontent.com/mautrix/telegram/master/screenshot1.png
+  - https://raw.githubusercontent.com/mautrix/telegram/master/screenshot2.png
+releaseNotes: >-
+  Initial release of the Telegram Bridge for Umbrel with custom configuration UI.
+  
+  - Easy web-based configuration
+  - Automatic registration with Synapse
+  - Persistent configuration storage
+dependencies:
+  - synapse
+path: ""
+defaultUsername: ""
+defaultPassword: ""

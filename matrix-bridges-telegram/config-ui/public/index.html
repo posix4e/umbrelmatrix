@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Bridge Setup Wizard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .wizard {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .wizard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .wizard-header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .step.active {
+            background: white;
+            color: #667eea;
+        }
+        
+        .step.completed {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .wizard-content {
+            padding: 40px;
+        }
+        
+        .step-content {
+            display: none;
+        }
+        
+        .step-content.active {
+            display: block;
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .status-box {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+        
+        .status-indicator.success {
+            background: #4caf50;
+        }
+        
+        .status-indicator.error {
+            background: #f44336;
+        }
+        
+        .status-indicator.pending {
+            background: #ff9800;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .alert.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+        
+        .alert.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .alert.info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #bbdefb;
+        }
+        
+        .code {
+            background: #f5f5f5;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        
+        .manual-instructions {
+            background: #fffbf0;
+            border: 1px solid #ffeb3b;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .manual-instructions h3 {
+            color: #f57c00;
+            margin-bottom: 15px;
+        }
+        
+        .manual-instructions ol {
+            margin-left: 20px;
+            color: #666;
+        }
+        
+        .manual-instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wizard">
+        <div class="wizard-header">
+            <h1>Telegram Bridge Setup</h1>
+            <div class="step-indicator">
+                <div class="step active" id="step-1-indicator">1</div>
+                <div class="step" id="step-2-indicator">2</div>
+                <div class="step" id="step-3-indicator">3</div>
+                <div class="step" id="step-4-indicator">4</div>
+            </div>
+        </div>
+        
+        <div class="wizard-content">
+            <!-- Step 1: Enter Matrix User -->
+            <div class="step-content active" id="step-1">
+                <h2>Step 1: Configure Bridge</h2>
+                <p>Enter your Matrix username to set up the bridge as an admin.</p>
+                
+                <div class="form-group">
+                    <label for="matrixUser">Your Matrix Username</label>
+                    <input type="text" id="matrixUser" placeholder="yourname or @yourname:umbrel.local">
+                </div>
+                
+                <div class="buttons">
+                    <button class="btn btn-primary" onclick="doStep1()">Create Configuration</button>
+                </div>
+            </div>
+            
+            <!-- Step 2: Copy Registration -->
+            <div class="step-content" id="step-2">
+                <h2>Step 2: Copy Registration File</h2>
+                <p>The bridge configuration has been created. Now we need to copy the registration file to Synapse.</p>
+                
+                <div id="step2-status" class="status-box">
+                    <div class="status-item">
+                        <div class="status-indicator pending"></div>
+                        <span>Waiting to copy registration file...</span>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">Back</button>
+                    <button class="btn btn-primary" onclick="doStep2()">Copy Registration File</button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Update Synapse Config -->
+            <div class="step-content" id="step-3">
+                <h2>Step 3: Register with Synapse</h2>
+                <p>Now we need to add the bridge registration to Synapse's configuration.</p>
+                
+                <div id="step3-status" class="status-box">
+                    <div class="status-item">
+                        <div class="status-indicator pending"></div>
+                        <span>Waiting to update Synapse config...</span>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">Back</button>
+                    <button class="btn btn-primary" onclick="doStep3()">Update Synapse Config</button>
+                </div>
+            </div>
+            
+            <!-- Step 4: Complete -->
+            <div class="step-content" id="step-4">
+                <h2>Setup Complete!</h2>
+                
+                <div class="alert success">
+                    Bridge configuration is complete! Follow the steps below to start using it.
+                </div>
+                
+                <div class="status-box">
+                    <div class="status-item">
+                        <div class="status-indicator success"></div>
+                        <span>Configuration created</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-indicator success"></div>
+                        <span>Registration file ready</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-indicator success" id="final-synapse-status"></div>
+                        <span id="final-synapse-text">Synapse configured</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 15px;">Next Steps:</h3>
+                    <ol style="margin-left: 20px; color: #666; line-height: 1.8;">
+                        <li><strong>Restart Synapse</strong> from the Umbrel dashboard</li>
+                        <li>Open Element (or your Matrix client)</li>
+                        <li>Start a chat with <span class="code" id="bot-username">@telegrambot:umbrel.local</span></li>
+                        <li>Send <span class="code">help</span> to see available commands</li>
+                        <li>Use <span class="code">login</span> to connect your Telegram account</li>
+                    </ol>
+                </div>
+                
+                <div class="buttons">
+                    <button class="btn btn-primary" onclick="location.reload()">Start Over</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentStep = 1;
+        let botUsername = '@telegrambot:umbrel.local';
+        
+        function goToStep(step) {
+            // Hide all steps
+            document.querySelectorAll('.step-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Show current step
+            document.getElementById(`step-${step}`).classList.add('active');
+            
+            // Update indicators
+            for (let i = 1; i <= 4; i++) {
+                const indicator = document.getElementById(`step-${i}-indicator`);
+                if (i < step) {
+                    indicator.classList.add('completed');
+                    indicator.classList.remove('active');
+                    indicator.innerHTML = '✓';
+                } else if (i === step) {
+                    indicator.classList.add('active');
+                    indicator.classList.remove('completed');
+                    indicator.innerHTML = i;
+                } else {
+                    indicator.classList.remove('active', 'completed');
+                    indicator.innerHTML = i;
+                }
+            }
+            
+            currentStep = step;
+        }
+        
+        async function doStep1() {
+            const matrixUser = document.getElementById('matrixUser').value.trim();
+            if (!matrixUser) {
+                alert('Please enter your Matrix username');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/setup/step1', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ matrixUser })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    botUsername = result.botUsername;
+                    goToStep(2);
+                } else {
+                    alert('Error: ' + (result.error || 'Failed to create configuration'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        async function doStep2() {
+            const statusBox = document.getElementById('step2-status');
+            statusBox.innerHTML = '<div class="loading">Copying registration file...</div>';
+            
+            try {
+                const response = await fetch('/api/setup/step2', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusBox.innerHTML = `
+                        <div class="status-item">
+                            <div class="status-indicator success"></div>
+                            <span>Registration file copied successfully!</span>
+                        </div>
+                    `;
+                    setTimeout(() => goToStep(3), 1000);
+                } else {
+                    statusBox.innerHTML = `
+                        <div class="alert error">${result.message}</div>
+                        <div class="manual-instructions">
+                            <h3>Manual Setup Required</h3>
+                            <ol>
+                                <li>SSH into your Umbrel</li>
+                                <li>Copy the registration file: <br>
+                                    <span class="code">cp ${result.registrationPath || '/data/bridge/registration.yaml'} ~/umbrel/app-data/synapse/data/telegram-registration.yaml</span>
+                                </li>
+                                <li>Click "Continue" when done</li>
+                            </ol>
+                        </div>
+                    `;
+                    // Allow continuing even if automatic copy failed
+                    setTimeout(() => goToStep(3), 2000);
+                }
+            } catch (error) {
+                statusBox.innerHTML = `<div class="alert error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function doStep3() {
+            const statusBox = document.getElementById('step3-status');
+            statusBox.innerHTML = '<div class="loading">Updating Synapse configuration...</div>';
+            
+            try {
+                const response = await fetch('/api/setup/step3', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    statusBox.innerHTML = `
+                        <div class="status-item">
+                            <div class="status-indicator success"></div>
+                            <span>${result.message}</span>
+                        </div>
+                    `;
+                    document.getElementById('bot-username').textContent = botUsername;
+                    setTimeout(() => goToStep(4), 1000);
+                } else {
+                    statusBox.innerHTML = `
+                        <div class="alert error">${result.message}</div>
+                        <div class="manual-instructions">
+                            <h3>Manual Setup Required</h3>
+                            <ol>
+                                <li>SSH into your Umbrel</li>
+                                <li>Edit Synapse config: <br>
+                                    <span class="code">nano ~/umbrel/app-data/synapse/data/homeserver.yaml</span>
+                                </li>
+                                <li>Add these lines at the end: <br>
+                                    <span class="code">app_service_config_files:<br>&nbsp;&nbsp;- /data/telegram-registration.yaml</span>
+                                </li>
+                                <li>Save and exit (Ctrl+X, Y, Enter)</li>
+                                <li>Click "Continue" when done</li>
+                            </ol>
+                        </div>
+                    `;
+                    
+                    // Update final status to show manual config needed
+                    document.getElementById('bot-username').textContent = botUsername;
+                    document.getElementById('final-synapse-status').className = 'status-indicator error';
+                    document.getElementById('final-synapse-text').textContent = 'Manual Synapse configuration required';
+                    
+                    setTimeout(() => goToStep(4), 2000);
+                }
+            } catch (error) {
+                statusBox.innerHTML = `<div class="alert error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        // Check initial status
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const status = await response.json();
+                
+                // If already configured, offer to reconfigure or show status
+                if (status.configExists && status.registrationExists) {
+                    if (confirm('Bridge appears to be already configured. Do you want to reconfigure?')) {
+                        // Continue with wizard
+                    } else {
+                        // Jump to final step
+                        goToStep(4);
+                    }
+                }
+            } catch (error) {
+                console.error('Status check failed:', error);
+            }
+        }
+        
+        // Check status on load
+        checkStatus();
+    </script>
+</body>
+</html>
